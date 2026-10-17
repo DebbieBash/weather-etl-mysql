@@ -1,0 +1,19 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_pw}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-weather}
+      MYSQL_USER: ${MYSQL_USER:-weather}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-weather_pw}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_pw}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
